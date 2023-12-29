@@ -105,7 +105,7 @@ def SegmentationExample(images, lambda_func, size, normalize = True):
 
 
 
-def SegmentationExampleVectorDescriptor(images, lambda_func, size, normalize = True, random_patches = False, window_size = 16):
+def SegmentationExampleVectorDescriptor(images, lambda_func, size, normalize = True, random_patches = False, window_size = 16, step_size=1):
     test_imgs = images
     test_imgs = [np.uint8(resize(img, (size,size))*255) for img in test_imgs]
     test_img = StichImages(test_imgs[0],test_imgs[1],test_imgs[2],test_imgs[3])
@@ -127,7 +127,7 @@ def SegmentationExampleVectorDescriptor(images, lambda_func, size, normalize = T
             class_features.append( (r1 + r2 + r3) / 3)
 
 
-    windows = view_as_windows(test_img,(window_size,window_size),step=1)
+    windows = view_as_windows(test_img,(window_size,window_size),step=step_size)
     seg = np.zeros((windows.shape[0],windows.shape[1]))
     local_features = []
     for i in tqdm(range(0,windows.shape[0])):
@@ -161,9 +161,10 @@ def SegmentationExampleVectorDescriptor(images, lambda_func, size, normalize = T
             seg[x,y] = np.argmin(res)
     print(seg)     
 
-    background =resize(np.copy(test_img), (seg.shape[0],seg.shape[1]))
+    seg_resized =resize(label2rgb(seg+1), (test_img.shape[0],test_img.shape[1]))
+    
     plt.imshow(test_img, cmap='gray')
-    plt.imshow(label2rgb(seg+1),alpha=0.4)
+    plt.imshow(seg_resized,alpha=0.4)
     plt.show()
    
    
